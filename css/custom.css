@@ -1,0 +1,65 @@
+body {
+	background: url("../images/woodWall.jpg");
+	background-repeat: repeat;
+}
+h2{
+	margin: 0;     
+	color: #666;
+	padding-top: 10px;
+	font-size: 52px;
+	font-family: "trebuchet ms", sans-serif;    
+}
+h2 img{
+	
+}
+.item{
+	text-align: center;
+	height: 300px !important;
+}
+.carousel{
+	margin-top: 20px;
+}
+.control-buttons{
+	text-align:center;
+}
+.navbar-inverse .navbar-brand {
+	background: url("../images/mobileBrand.jpg");
+	color: white;
+}
+/* Added by Jeff Codling */
+.booklist {
+	margin-top: 80px;
+	text-align: center;
+}
+.book {
+	margin: 0 2px 10px;
+	display: inline-block;
+	width: 280px;
+	height: 200px;
+	float: left;
+	color: white;
+	text-shadow: 1px 2px 4px black;
+	border: 1px solid rgba(0,0,0,0.4);
+	transition: ease .75s;
+	background: rgba(0,0,0,0.2);
+}
+.book:hover {
+	border: 1px dotted white;
+	background: rgba(255,255,255,0.2);
+}
+.book img {
+	margin: 5px;
+	max-height: 180px;
+	float: left;
+	box-shadow: 1px 2px 4px black;
+}
+.book .booktitle {
+	margin: 15px 0;
+	font-size: 18px;
+}
+.book .bookauthor {
+	
+}
+.singlebookdetails {
+	display: inline-block;
+}

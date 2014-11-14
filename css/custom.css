@@ -32,34 +32,51 @@ h2 img{
 	text-align: center;
 }
 .book {
-	margin: 0 2px 10px;
-	display: inline-block;
-	width: 280px;
-	height: 200px;
-	float: left;
-	color: white;
-	text-shadow: 1px 2px 4px black;
-	border: 1px solid rgba(0,0,0,0.4);
-	transition: ease .75s;
-	background: rgba(0,0,0,0.2);
-}
-.book:hover {
-	border: 1px dotted white;
-	background: rgba(255,255,255,0.2);
+  color: white;
+  text-align: center;
+  text-shadow: 2px 2px 4px black;
+  transition: ease .75s;
 }
 .book img {
-	margin: 5px;
-	max-height: 180px;
-	float: left;
-	box-shadow: 1px 2px 4px black;
+  transition: ease .75s;
 }
-.book .booktitle {
-	margin: 15px 0;
-	font-size: 18px;
+.book:hover img {
+  box-shadow: 6px 6px 8px black;
+  transition: ease .75s;
 }
-.book .bookauthor {
-	
+.book:hover, .book h3:hover, .book p:hover {
+  color: rgb(255,240,0);
+  text-shadow: 4px 4px 6px black;
+  transition: ease .75s;
 }
-.singlebookdetails {
-	display: inline-block;
+.singlebook {
+	margin-top: 80px;
+	text-align: center;
+  font-size: 16px;
+  background: rgba(255,255,255,0.8);
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+}
+.singlebook img {
+  float: left;
+  margin: 15px;
+  border: 1px solid black;
+}
+.booktitle {
+  margin: 15px 0 0;
+  text-align: left;
+  font-weight: bold;
+  font-size: 24px;
+}
+.bookauthor {
+  margin: 5px 0;
+  text-align: left;
+  font-size: 18px;
+}
+.bookplot {
+  text-align: left;
+  font-size: 16px;
+}
+.bookprice {
+  text-align: left;
 }

@@ -1,6 +1,46 @@
 <?php
 session_start();
 include_once("php/constants.php");
+include_once("php/functions.php");
+
+// Login Timeout
+if(isset($_SESSION['timestamp'])) {
+	if((time()+$timelimit)<time()) {
+		session_unset();
+		session_destroy();
+		header("Location: ".$_SERVER['PHP_SELF']);
+	} else {
+		$_SESSION['timestamp'] = time();
+	}
+}
+
+// Logout
+if(isset($_REQUEST['logout'])) {
+	session_unset();
+	session_destroy();
+	header("Location: ".$_SERVER['PHP_SELF']);
+}
+
+// Display_Error(isset($_SESSION['clientid'])?"ClientID is set":"Not set");
+// Display_Error(isset($_SESSION['clientname'])?"Client Name is set":"Not set");
+
+if(isset($_REQUEST['login'])) {
+	if(isset($_REQUEST['username']) && isset($_REQUEST['password'])) {
+		$loginResult = getUser($con,$_REQUEST['username'],$_REQUEST['password']);
+		if($loginResult == "noconnect") {
+			Display_Error("Login failed: No database connection.");
+		} else if($loginResult == "na") {
+			Display_Error("Login failed: Username not found.");
+		} else if($loginResult == "wrong_password") {
+			Display_Error("Login failed: Password not valid");
+		} else {
+			header("Location: ".$_SERVER['PHP_SELF']);
+		}
+	} else {
+		Display_Error("Login failed: Username/Password required.");
+	}
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -14,46 +54,60 @@ include_once("php/constants.php");
 	<link rel="stylesheet" href="css/custom.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
-	<script type="text/javascript">
-		$(document).ready(function(){
-			// Initializes the carousel
-			$(".start-slide").click(function(){
-				$("#myCarousel").carousel('cycle');
-			});
-			// Stops the carousel
-			$(".pause-slide").click(function(){
-				$("#myCarousel").carousel('pause');
-			});
-		});
-	</script>
   </head>
   <body>
 
 	<!-- Modals -->
-	<div class="modal fade" id="loginModal">
+	<div class="modal fade" id="loginModal">								<!-- Login Modal -->
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
 					<h4 class="modal-title">Log-in</h4>
 					</div>
-					<form action="" method="post">
+					<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 					<div class="modal-body">
 						<div class="form-group">
-							<label for="exampleInputEmail1">Email address</label>
-							<input class="form-control" id="exampleInputEmail1" name="username" placeholder="Enter email" type="email">
+							<label for="exampleInputEmail1">Username</label>
+							<input class="form-control" id="exampleInputEmail1" name="username" placeholder="Username" type="text">
 						</div>
 						<div class="form-group">
 							<label for="exampleInputPassword1">Password</label>
 							<input class="form-control" id="exampleInputPassword1" name="password" placeholder="Password" type="password">
 						</div>
 						<p class="text-left"><a href="forgot.php">Forgot password?</a></p>
-						<p class="text-right">New User? <a href="register.php">Sign Up</a> for a free account.</p>
+						<p class="text-right">New User? <a href="#regModal" data-toggle="modal" data-target="#regModal" onclick="$('#loginModal').modal('hide')">Sign Up</a> for a free account.</p>
 					</div>
 					<div class="modal-footer">
 						<a href="#" data-dismiss="modal" class="btn">Close</a>
-						<button type="submit" class="btn btn-default">Log-in</button>
-<!-- 						<a href="member.php" class="btn btn-primary">Log-in</a> -->
+						<button type="submit" class="btn btn-default" name="login">Log-in</button>
+					</div>
+					</form>
+		    </div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="regModal">								<!-- Register Modal -->
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+					<h4 class="modal-title">Register</h4>
+					</div>
+					<form action="" method="post">
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="exampleInputEmail1">Username</label>
+							<input class="form-control" id="exampleInputEmail1" name="username" placeholder="Username" type="text">
+						</div>
+						<div class="form-group">
+							<label for="exampleInputPassword1">Password</label>
+							<input class="form-control" id="exampleInputPassword1" name="password" placeholder="Password" type="password">
+						</div>
+					</div>
+					<div class="modal-footer">
+						<a href="#" data-dismiss="modal" class="btn">Cancel</a>
+						<button type="submit" class="btn btn-default" name="register">Register</button>
 					</div>
 					</form>
 		    </div>
@@ -131,8 +185,17 @@ include_once("php/constants.php");
 					</ul>
 				</li>
 				<?php
-				if(isset($_SESSION['clientid'])) {
-					echo "<li><span class=\"glyphicon glyphicon-user\"></span>".$_SESSION['clientname']."</li>";
+				if(isset($_SESSION['clientid'])) {					// If user is logged in display their name
+					?>
+					<li><a data-toggle="dropdown" class="dropdown-toggle" href="#"><span class="glyphicon glyphicon-user"></span>
+					<?php echo $_SESSION['clientname']; ?> Account<b class="caret"></b></a>
+					<ul role="menu" class="dropdown-menu">
+						<li><a href="wishList.html"><span class="glyphicon glyphicon-star-empty"></span> Wish List <span class="badge">0</span></a></li>
+						<li><a href="account.html"><span class="glyphicon glyphicon-cog"></span> My Account</a></li>
+						<li class="divider"></li>
+						<li><a href="?logout=TRUE"><span class="glyphicon glyphicon-off"></span> Sign Out</a></li>
+					</ul></li>
+					<?php
 				} else {
 					?>
 					<li><a href="#loginModal" data-toggle="modal" data-target="#loginModal"><span class="glyphicon glyphicon-user"></span> Log-in</a></li>
@@ -141,68 +204,81 @@ include_once("php/constants.php");
 			</ul>
 		</div>
 	</nav>
-	<!-- PHP code for display of books by Jeff Codling-->
-	<?php
-	$stmt = "SELECT b.book_id,book_title,book_plot,book_price,author_last,author_first,author_middle FROM books b";
-	$stmt = $stmt." JOIN book_authors j ON b.book_id=j.book_id JOIN authors a ON j.author_id=a.author_id";
-	$orderby = "book_title";
-	if(isset($_REQUEST['id']) && !isset($_REQUEST['back'])) {
-		$stmt .= " WHERE b.book_id=".$_REQUEST['id'];
-	} else {
-		$stmt .= " ORDER BY ".$orderby;
-	}
-	$results = mysqli_query($con, $stmt);
-	if(mysqli_errno($con)) {
-		die("Could not select books and authors.<br>Query: ".$stmt."<br>Error: ".mysqli_error($con));
-	}
-	if(isset($_REQUEST['id']) && !isset($_REQUEST['back'])) {
-		echo "<div class=\"singlebook clearfix\">";
-		$row = mysqli_fetch_assoc($results);
-		echo "<img src=\"images/";
-		if(file_exists("images/".$row['book_id'].".jpg")) {
-			echo $row['book_id'];
-		} else {
-			echo "coverart";
+	<div class="bodycontainer">
+		<?php
+		// Register New USER
+		if(isset($_REQUEST['register'])) {
+			$result = addUser($con,$_REQUEST['username'],$_REQUEST['password']);
+			if($result == "done") {
+				header("Location: ".$_SERVER['PHP_SELF']);
+			}
 		}
-		echo ".jpg\">";
-		echo "<div class=\"booktitle\">".$row['book_title']."</div>";
-		echo "<div class=\"bookauthor\">".$row['author_first']." ".$row['author_middle']." ".$row['author_last']."</div>";
-		echo "<div class=\"bookplot\">".$row['book_plot']."</div>";
-		printf("<div class=\"bookprice\">$%.2f</div>",$row['book_price']);
-		echo "<form action=\"\" method=\"post\">";
-		echo "<input type=\"submit\" name=\"back\" value=\"Back\">";
-		echo "</form>";
-		echo "</div>";
-	} else {
-		echo "<div class=\"booklist\">\n";
-		$counter=1;
-		while($row = mysqli_fetch_array($results)) {
-			echo "<a href=\"?id=".$row['book_id']."\">";
-			echo "<div class=\"book col-xs-12 col-sm-6 col-md-4 col-lg-3\">";
-			echo "<h2><img src=\"images/";
+
+		?>
+
+		<!-- PHP code for display of books by Jeff Codling-->
+		<?php
+		$stmt = "SELECT b.book_id,book_title,book_plot,book_price,author_last,author_first,author_middle FROM books b";
+		$stmt = $stmt." JOIN book_authors j ON b.book_id=j.book_id JOIN authors a ON j.author_id=a.author_id";
+		$orderby = "book_title";
+		if(isset($_REQUEST['id']) && !isset($_REQUEST['back'])) {
+			$stmt .= " WHERE b.book_id=".$_REQUEST['id'];
+		} else {
+			$stmt .= " ORDER BY ".$orderby;
+		}
+		$results = mysqli_query($con, $stmt);
+		if(mysqli_errno($con)) {
+			die("Could not select books and authors.<br>Query: ".$stmt."<br>Error: ".mysqli_error($con));
+		}
+		if(isset($_REQUEST['id']) && !isset($_REQUEST['back'])) {
+			echo "<div class=\"singlebook clearfix\">";
+			$row = mysqli_fetch_assoc($results);
+			echo "<img src=\"images/";
 			if(file_exists("images/".$row['book_id'].".jpg")) {
 				echo $row['book_id'];
 			} else {
 				echo "coverart";
 			}
-			echo ".jpg\"></h2>\n";
-			echo "<h3>".$row['book_title']."</h3>\n";
-			echo "<p>".$row['author_first']." ".$row['author_last']."</p>";
-			echo "</div>\n";
-			if ($counter % 2 == 0) {
-				echo "<div class=\"clearfix visible-sm-block\"></div>";
+			echo ".jpg\">";
+			echo "<div class=\"booktitle\">".$row['book_title']."</div>";
+			echo "<div class=\"bookauthor\">".$row['author_first']." ".$row['author_middle']." ".$row['author_last']."</div>";
+			echo "<div class=\"bookplot\">".$row['book_plot']."</div>";
+			printf("<div class=\"bookprice\">$%.2f</div>",$row['book_price']);
+			echo "</div>";
+			echo "<form action=\"\" method=\"post\">";
+			echo "<button type=\"submit\" name=\"back\">Back</button>";
+			echo "</form>";
+		} else {
+			echo "<div class=\"booklist\">\n";
+			$counter=1;
+			while($row = mysqli_fetch_array($results)) {
+				echo "<a href=\"?id=".$row['book_id']."\">";
+				echo "<div class=\"book col-xs-12 col-sm-6 col-md-4 col-lg-3\">";
+				echo "<h2><img src=\"images/";
+				if(file_exists("images/".$row['book_id'].".jpg")) {
+					echo $row['book_id'];
+				} else {
+					echo "coverart";
+				}
+				echo ".jpg\"></h2>\n";
+				echo "<h3>".$row['book_title']."</h3>\n";
+				echo "<p>".$row['author_first']." ".$row['author_last']."</p>";
+				echo "</div>\n";
+				if ($counter % 2 == 0) {
+					echo "<div class=\"clearfix visible-sm-block\"></div>";
+				}
+				if ($counter % 3 == 0) {
+					echo "<div class=\"clearfix visible-md-block\"></div>";
+				}
+				if ($counter % 4 == 0) {
+					echo "<div class=\"clearfix visible-lg-block\"></div>";
+				}
+				$counter++;
 			}
-			if ($counter % 3 == 0) {
-				echo "<div class=\"clearfix visible-md-block\"></div>";
-			}
-			if ($counter % 4 == 0) {
-				echo "<div class=\"clearfix visible-lg-block\"></div>";
-			}
-			$counter++;
+			echo "</div></a>\n";
 		}
-		echo "</div></a>\n";
-	}
 	?>
+	<div>
 	<?php
 	include_once("php/endofpage.php");
 	?>

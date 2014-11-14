@@ -1,14 +1,14 @@
 <?php
 // *********** PHP Server Credentials
-define("SERVERNAME","gator3119.hostgator.com");
-define("DATABASENAME","rbp_team01");
-define("USR","rbp_team1");
-define("PASS","Pass4team01!");
+// define("SERVERNAME","gator3119.hostgator.com");
+// define("DATABASENAME","rbp_team01");
+// define("USR","rbp_team01");
+// define("PASS","Pass4team01!");
 
-// define("SERVERNAME","localhost");
-// define("DATABASENAME","web_project");
-// define("USR","root");
-// define("PASS","");
+define("SERVERNAME","localhost");
+define("DATABASENAME","web_project");
+define("USR","root");
+define("PASS","");
 
 // define("SERVERNAME","team01project.db.6194647.hostedresource.com");
 // define("DATABASENAME","team01project");

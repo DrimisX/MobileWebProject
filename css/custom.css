@@ -2,6 +2,12 @@ body {
 	background: url("../images/woodWall.jpg");
 	background-repeat: repeat;
 }
+.bodycontainer {
+	margin-top: 80px;
+}
+.navbar {
+	box-shadow: 0px 2px 4px black;
+}
 h2{
 	margin: 0;     
 	color: #666;

@@ -5,10 +5,12 @@
 // by: Jeff Codling
 // 
 
+// Display Error
 function Display_Error($text) {
 	echo "<div style=\"margin-top: 70px;\" ><div class=\"alert alert-danger\" role=\"alert\">".$text."</div></div>";
 }
 
+// getUser validates login information against the database
 function getUser($con,$username,$password) {
 	if($username == "" || $username == NULL || $password == "" || $password == NULL) {
 		Display_Error("Username/Password cannot be blank.");
@@ -76,3 +78,68 @@ function addUser($con,$username,$password) {
 	return $flag;
 }
 
+// GetUsername gets the username from the client id
+function getUsername($con,$clientid) {
+	$name = "username";
+	$stmt = "SELECT username FROM accounts WHERE client_id=".$clientid;
+	$results = mysqli_query($con, $stmt);
+	if(mysqli_errno($con)) {
+		Display_Error("Fatal: Could not select username from accounts<br>\".$stmt.\"<br>\".mysqli_error($con)");
+		$flag = "noconnect";
+	} else {
+		$row = mysqli_fetch_array($results);
+		$name = $row['username'];
+	}
+	return $name;
+}
+
+// GetPassword gets the password from the client id
+function getPassword($con,$clientid) {
+	$name = "password";
+	$stmt = "SELECT password FROM accounts WHERE client_id=".$clientid;
+	$results = mysqli_query($con, $stmt);
+	if(mysqli_errno($con)) {
+		Display_Error("Fatal: Could not select password from accounts<br>\".$stmt.\"<br>\".mysqli_error($con)");
+		$flag = "noconnect";
+	} else {
+		$row = mysqli_fetch_array($results);
+		$name = $row['password'];
+	}
+	return $name;
+}
+
+function changeUserInfo($con,$username,$oldpassword,$newpassword) {
+	$flag = "error";
+	$clientid = $_SESSION['clientid'];
+	if($username != getUsername($con,$clientid)) {
+		if($oldpassword == getPassword($con,$clientid)) {
+			$stmt = "UPDATE accounts SET username='".$username."' WHERE client_id=".$clientid;
+			$results = mysqli_query($con, $stmt);
+			if(mysqli_errno($con)) {
+				Display_Error("Fatal: Could not modify row in accounts<br>\".$stmt.\"<br>\".mysqli_error($con)");
+			} else {
+				$flag = "success";
+			}
+		} else {
+			Display_Error("Old password does not match.");
+		}
+	}
+	if($newpassword != "" || $newpassword != NULL) {
+		if($newpassword != $oldpassword) {
+			if(getPassword($con,$clientid) == $oldpassword) {
+				$stmt = "UPDATE accounts SET password='".$newpassword."' WHERE client_id=".$clientid;
+				$results = mysqli_query($con, $stmt);
+				if(mysqli_errno($con)) {
+					Display_Error("Fatal: Could not modify row in accounts<br>\".$stmt.\"<br>\".mysqli_error($con)");
+				} else {
+					$flag = "success";
+				}
+			}
+		}
+	}
+	return $flag;
+}
+
+// 
+// 				$stmt = "UPDATE accounts SET client_username=\"".$clientUsername."\",client_password=\"".$newHashed."\"";
+// 				$stmt = $stmt." WHERE client_id=".$_REQUEST['clientid'];

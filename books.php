@@ -5,7 +5,7 @@ include_once("php/functions.php");
 
 // Login Timeout
 if(isset($_SESSION['timestamp'])) {
-	if((time()+$timelimit)<time()) {
+	if(time()>$timelimit+$_SESSION['timestamp']) {
 		session_unset();
 		session_destroy();
 		header("Location: ".$_SERVER['PHP_SELF']);
@@ -24,6 +24,7 @@ if(isset($_REQUEST['logout'])) {
 // Display_Error(isset($_SESSION['clientid'])?"ClientID is set":"Not set");
 // Display_Error(isset($_SESSION['clientname'])?"Client Name is set":"Not set");
 
+// Login error handling
 if(isset($_REQUEST['login'])) {
 	if(isset($_REQUEST['username']) && isset($_REQUEST['password'])) {
 		$loginResult = getUser($con,$_REQUEST['username'],$_REQUEST['password']);
@@ -41,10 +42,39 @@ if(isset($_REQUEST['login'])) {
 	}
 }
 
+// Register New USER
+if(isset($_REQUEST['register'])) {
+	$result = addUser($con,$_REQUEST['username'],$_REQUEST['password']);
+	if($result == "done") {
+		header("Location: ".$_SERVER['PHP_SELF']);
+	}
+}
+
+// Modify Account Information
+if(isset($_REQUEST['modify'])) {
+	if(isset($_REQUEST['accuser'])) {
+		if($_REQUEST['username'] != "") {
+			if(isset($_REQUEST['oldpass'])) {
+				if($_REQUEST['oldpass'] != "") {
+					$result = changeUserInfo($con,$_SESSION['clientid'],$_REQUEST['accuser'],$_REQUEST['oldpass'],$_REQUEST['newpass']);
+					if($result == "success") {
+						header("Location: ".$_SERVER['PHP_SELF']);
+					} else {
+						Display_Error("Could not modify user account.");
+					}
+					Display_Error("Password must not be blank.");
+				}
+				Display_Error("Password must not be blank.");
+			}
+			Display_Error("Username must not be blank.");
+		}
+		Display_Error("Username must not be blank.");
+	}
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
 	<title>A Novel Concept</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
@@ -54,83 +84,8 @@ if(isset($_REQUEST['login'])) {
 	<link rel="stylesheet" href="css/custom.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
-  </head>
-  <body>
-
-	<!-- Modals -->
-	<div class="modal fade" id="loginModal">								<!-- Login Modal -->
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-					<h4 class="modal-title">Log-in</h4>
-					</div>
-					<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
-					<div class="modal-body">
-						<div class="form-group">
-							<label for="exampleInputEmail1">Username</label>
-							<input class="form-control" id="exampleInputEmail1" name="username" placeholder="Username" type="text">
-						</div>
-						<div class="form-group">
-							<label for="exampleInputPassword1">Password</label>
-							<input class="form-control" id="exampleInputPassword1" name="password" placeholder="Password" type="password">
-						</div>
-						<p class="text-left"><a href="forgot.php">Forgot password?</a></p>
-						<p class="text-right">New User? <a href="#regModal" data-toggle="modal" data-target="#regModal" onclick="$('#loginModal').modal('hide')">Sign Up</a> for a free account.</p>
-					</div>
-					<div class="modal-footer">
-						<a href="#" data-dismiss="modal" class="btn">Close</a>
-						<button type="submit" class="btn btn-default" name="login">Log-in</button>
-					</div>
-					</form>
-		    </div>
-		</div>
-	</div>
-
-	<div class="modal fade" id="regModal">								<!-- Register Modal -->
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-					<h4 class="modal-title">Register</h4>
-					</div>
-					<form action="" method="post">
-					<div class="modal-body">
-						<div class="form-group">
-							<label for="exampleInputEmail1">Username</label>
-							<input class="form-control" id="exampleInputEmail1" name="username" placeholder="Username" type="text">
-						</div>
-						<div class="form-group">
-							<label for="exampleInputPassword1">Password</label>
-							<input class="form-control" id="exampleInputPassword1" name="password" placeholder="Password" type="password">
-						</div>
-					</div>
-					<div class="modal-footer">
-						<a href="#" data-dismiss="modal" class="btn">Cancel</a>
-						<button type="submit" class="btn btn-default" name="register">Register</button>
-					</div>
-					</form>
-		    </div>
-		</div>
-	</div>
-	
-	<div class="modal fade" id="cartModal">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-					<h4 class="modal-title">Shopping Cart</h4>
-				</div>
-				<div class="modal-body">
-					<p>CART ITEMS HERE</p>
-				</div>
-				<div class="modal-footer">
-					<a href="#" data-dismiss="modal" class="btn">Close</a>
-					<a href="checkout.php" class="btn btn-primary">Proceed to Checkout</a>
-				</div>
-		    </div>
-		</div>
-	</div>
+</head>
+<body>
 
 	<!-- Navigation -->
 	<nav role="navigation" class="navbar navbar-inverse navbar-fixed-top">
@@ -191,7 +146,7 @@ if(isset($_REQUEST['login'])) {
 					<?php echo $_SESSION['clientname']; ?> Account<b class="caret"></b></a>
 					<ul role="menu" class="dropdown-menu">
 						<li><a href="wishList.html"><span class="glyphicon glyphicon-star-empty"></span> Wish List <span class="badge">0</span></a></li>
-						<li><a href="account.html"><span class="glyphicon glyphicon-cog"></span> My Account</a></li>
+						<li><a href="#accountModal" data-toggle="modal" data-target="#accountModal"><span class="glyphicon glyphicon-cog"></span> My Account</a></li>
 						<li class="divider"></li>
 						<li><a href="?logout=TRUE"><span class="glyphicon glyphicon-off"></span> Sign Out</a></li>
 					</ul></li>
@@ -204,18 +159,8 @@ if(isset($_REQUEST['login'])) {
 			</ul>
 		</div>
 	</nav>
+	
 	<div class="bodycontainer">
-		<?php
-		// Register New USER
-		if(isset($_REQUEST['register'])) {
-			$result = addUser($con,$_REQUEST['username'],$_REQUEST['password']);
-			if($result == "done") {
-				header("Location: ".$_SERVER['PHP_SELF']);
-			}
-		}
-
-		?>
-
 		<!-- PHP code for display of books by Jeff Codling-->
 		<?php
 		$stmt = "SELECT b.book_id,book_title,book_plot,book_price,author_last,author_first,author_middle FROM books b";
@@ -279,10 +224,116 @@ if(isset($_REQUEST['login'])) {
 		}
 	?>
 	<div>
+	
+		<!-- Modals -->
+	<div class="modal fade" id="loginModal">								<!-- Login Modal -->
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+					<h4 class="modal-title">Log-in</h4>
+					</div>
+					<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="exampleInputEmail1">Username</label>
+							<input class="form-control" id="exampleInputEmail1" name="username" placeholder="Username" type="text">
+						</div>
+						<div class="form-group">
+							<label for="exampleInputPassword1">Password</label>
+							<input class="form-control" id="exampleInputPassword1" name="password" placeholder="Password" type="password">
+						</div>
+						<p class="text-left"><a href="forgot.php">Forgot password?</a></p>
+						<p class="text-right">New User? <a href="#regModal" data-toggle="modal" data-target="#regModal" onclick="$('#loginModal').modal('hide')">Sign Up</a> for a free account.</p>
+					</div>
+					<div class="modal-footer">
+						<a href="#" data-dismiss="modal" class="btn">Close</a>
+						<button type="submit" class="btn btn-success" name="login">Log-in</button>
+					</div>
+					</form>
+		    </div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="regModal">								<!-- Register Modal -->
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+					<h4 class="modal-title">Register</h4>
+					</div>
+					<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="exampleInputEmail1">Username</label>
+							<input class="form-control" id="exampleInputEmail1" name="username" placeholder="Username" type="text">
+						</div>
+						<div class="form-group">
+							<label for="exampleInputPassword1">Password</label>
+							<input class="form-control" id="exampleInputPassword1" name="password" placeholder="Password" type="password">
+						</div>
+					</div>
+					<div class="modal-footer">
+						<a href="#" data-dismiss="modal" class="btn">Cancel</a>
+						<button type="submit" class="btn btn-success" name="register">Register</button>
+					</div>
+					</form>
+		    </div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="accountModal">								<!-- Account Modal -->
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+					<h4 class="modal-title">Account Management</h4>
+					</div>
+					<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="accuser">Username</label>
+							<input class="form-control" id="accuser" name="accuser" value="<?php echo getUsername($con,$_SESSION['clientid']); ?>" type="text" autofocus>
+						</div>
+						<div class="form-group">
+							<label for="exampleInputPassword1">Old Password</label>
+							<input class="form-control" id="exampleInputPassword1" name="oldpass" placeholder="old password" type="password">
+						</div>
+						<div class="form-group">
+							<label for="exampleInputPassword1">New Password</label>
+							<input class="form-control" id="exampleInputPassword1" name="newpass" placeholder="new password" type="password">
+						</div>
+					</div>
+					<div class="modal-footer">
+						<a href="#" data-dismiss="modal" class="btn">Cancel</a>
+						<button type="submit" class="btn btn-success" name="modify">Modify</button>
+						<button type="submit" class="btn btn-danger" name="delete">Delete</button>
+					</div>
+					</form>
+		    </div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="cartModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+					<h4 class="modal-title">Shopping Cart</h4>
+				</div>
+				<div class="modal-body">
+					<p>CART ITEMS HERE</p>
+				</div>
+				<div class="modal-footer">
+					<a href="#" data-dismiss="modal" class="btn">Close</a>
+					<a href="checkout.php" class="btn btn-primary">Proceed to Checkout</a>
+				</div>
+		    </div>
+		</div>
+	</div>
+	
 	<?php
 	include_once("php/endofpage.php");
 	?>
 </body>
-<script>
-</script>
 </html>

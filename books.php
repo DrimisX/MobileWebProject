@@ -103,20 +103,51 @@ if(isset($_POST['modify'])) {
 			<ul class="nav navbar-nav">
 				<li><a href="books.php"><span class="glyphicon glyphicon-book"></span> Books</a></li>
 				<li class="dropdown">
-					<a data-toggle="dropdown" class="dropdown-toggle" href="#"><span class="glyphicon glyphicon-list"></span> Sort By<b class="caret"></b></a>
+					<a data-toggle="dropdown" class="dropdown-toggle" href="#"><span class="glyphicon glyphicon-list"></span><?php
+					if(isset($_GET['sortby'])) {
+						switch ($_GET['sortby']) {
+							case "afirst":
+								echo "By:Author's First Name";
+								break;
+							case "alast":
+								echo "By:Author's Last Name";
+								break;
+							case "title":
+								echo "By:Title";
+								break;
+							default:
+								echo "Sort By";
+						}
+					} else {
+						echo "Sort By";
+					}
+					?><b class="caret"></b></a>
 					<ul role="menu" class="dropdown-menu">
 						<li><a href="?sortby=title">Title</a></li>
 						<li><a href="?sortby=afirst">Author First Name</a></li>
 						<li><a href="?sortby=alast">Author Last Name</a></li>
-						<li class="divider"></li>
-						<li><a href="index.php#">See All</a></li>
 					</ul>
 				</li>
 			</ul>
 			<form role="search" class="navbar-form navbar-left" method="post">
 				<div class="form-group">
-					<input type="text" placeholder="Search by Author/Title/Keyword" class="input-large form-control" name="searchbox">
-					<button class="btn " name="search" value="Search">
+					<input type="text" placeholder="Search <?php
+					if(isset($_GET['sortby'])) {
+						if($_GET['sortby'] == "afirst" || $_GET['sortby'] == "alast") {
+							echo "Author's name";
+						} else {
+							echo "in Title";
+						}
+					} else {
+						echo "in Title";
+					}
+					?>" class="input-large form-control" name="searchbox"
+					<?php
+					if(isset($_POST['searchbox'])) {
+						echo " value = \"".$_POST['searchbox']."\"";
+					}
+					?>>
+					<button class="btn " name="search" value="Search">Go</button>
 				</div>
 			</form>
 			<ul class="nav navbar-nav navbar-right">
@@ -182,7 +213,26 @@ if(isset($_POST['modify'])) {
 		if(isset($_REQUEST['id']) && !isset($_REQUEST['back'])) {					// If ID set add WHERE clause to SQL
 			$stmt .= " WHERE b.book_id=".$_REQUEST['id'];
 		} else {
-			$stmt .= " ORDER BY ".$orderby;														// ORDER BY for sorting selection
+			if(isset($_POST['search']) && isset($_POST['searchbox'])) {
+				if(isset($_GET['sortby'])) {
+					switch ($_GET['sortby']) {
+						case "afirst":
+							$whereclause = "author_first";
+							break;
+						case "alast":
+							$whereclause = "author_last";
+							break;
+						default:
+							$whereclause = "book_title";
+					}
+				} else {
+					$whereclause = "book_title";
+				}
+				$whereclause .= " LIKE '%".$_POST['searchbox']."%'";
+				$stmt .= " WHERE ".$whereclause;
+			} else {
+				$stmt .= " ORDER BY ".$orderby;														// ORDER BY for sorting selection
+			}
 		}
 		$results = mysqli_query($con, $stmt);
 		if(mysqli_errno($con)) {

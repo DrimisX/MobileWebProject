@@ -25,9 +25,9 @@ if(isset($_REQUEST['logout'])) {
 // Display_Error(isset($_SESSION['clientname'])?"Client Name is set":"Not set");
 
 // Login error handling
-if(isset($_REQUEST['login'])) {
-	if(isset($_REQUEST['username']) && isset($_REQUEST['password'])) {
-		$loginResult = getUser($con,$_REQUEST['username'],$_REQUEST['password']);
+if(isset($_POST['login'])) {
+	if(isset($_POST['username']) && isset($_POST['password'])) {
+		$loginResult = getUser($con,$_POST['username'],$_POST['password']);
 		if($loginResult == "noconnect") {
 			Display_Error("Login failed: No database connection.");
 		} else if($loginResult == "na") {
@@ -43,34 +43,33 @@ if(isset($_REQUEST['login'])) {
 }
 
 // Register New USER
-if(isset($_REQUEST['register'])) {
-	$result = addUser($con,$_REQUEST['username'],$_REQUEST['password']);
+if(isset($_POST['register'])) {
+	$result = addUser($con,$_POST['username'],$_POST['password']);
 	if($result == "done") {
 		header("Location: ".$_SERVER['PHP_SELF']);
 	}
 }
 
 // Modify Account Information
-if(isset($_REQUEST['modify'])) {
-	if(isset($_REQUEST['accuser'])) {
-		if($_REQUEST['username'] != "") {
-			if(isset($_REQUEST['oldpass'])) {
-				if($_REQUEST['oldpass'] != "") {
-					$result = changeUserInfo($con,$_SESSION['clientid'],$_REQUEST['accuser'],$_REQUEST['oldpass'],$_REQUEST['newpass']);
-					if($result == "success") {
-						header("Location: ".$_SERVER['PHP_SELF']);
-					} else {
-						Display_Error("Could not modify user account.");
-					}
-					Display_Error("Password must not be blank.");
-				}
-				Display_Error("Password must not be blank.");
+if(isset($_POST['modify'])) {
+	$result = "na";
+	if(isset($_POST['newpass']) && isset($_POST['oldpass'])) {
+		if($_POST['newpass'] == $_POST['oldpass']) {
+			DisplayError("Old password matches new password. No change.");
+		} else {
+			if($_POST['oldpass'] == getPassword($con,$_SESSION['clientid'])) {
+				$result = changeUserInfo($con,getUsername($con,$_SESSION['clientid']),$_POST['newpass']);
+			} else {
+				Display_Error("Old password did not match. No change.");
 			}
-			Display_Error("Username must not be blank.");
 		}
-		Display_Error("Username must not be blank.");
 	}
-}
+	if($result === "success") {
+		header("Location: ".$_SERVER['PHP_SELF']);
+	} else {
+		Display_Error("Could not modify user account.");
+	}
+}	
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -104,11 +103,11 @@ if(isset($_REQUEST['modify'])) {
 			<ul class="nav navbar-nav">
 				<li><a href="books.php"><span class="glyphicon glyphicon-book"></span> Books</a></li>
 				<li class="dropdown">
-					<a data-toggle="dropdown" class="dropdown-toggle" href="#"><span class="glyphicon glyphicon-list"></span> Categories<b class="caret"></b></a>
+					<a data-toggle="dropdown" class="dropdown-toggle" href="#"><span class="glyphicon glyphicon-list"></span> Sort By<b class="caret"></b></a>
 					<ul role="menu" class="dropdown-menu">
-						<li><a href="index.php#">Top Sellers</a></li>
-						<li><a href="index.php#">What's New</a></li>
-						<li><a href="index.php#">Featured Author</a></li>
+						<li><a href="?sortby=title">Title</a></li>
+						<li><a href="?sortby=afirst">Author First Name</a></li>
+						<li><a href="?sortby=alast">Author Last Name</a></li>
 						<li class="divider"></li>
 						<li><a href="index.php#">See All</a></li>
 					</ul>
@@ -165,17 +164,30 @@ if(isset($_REQUEST['modify'])) {
 		<?php
 		$stmt = "SELECT b.book_id,book_title,book_plot,book_price,author_last,author_first,author_middle FROM books b";
 		$stmt = $stmt." JOIN book_authors j ON b.book_id=j.book_id JOIN authors a ON j.author_id=a.author_id";
-		$orderby = "book_title";
-		if(isset($_REQUEST['id']) && !isset($_REQUEST['back'])) {
-			$stmt .= " WHERE b.book_id=".$_REQUEST['id'];
+		if(isset($_REQUEST['sortby'])) {
+			switch ($_REQUEST['sortby']) {
+				case "afirst":
+					$orderby = "author_first";
+					break;
+				case "alast":
+					$orderby = "author_last";
+					break;
+				default:
+					$orderby = "book_title";
+			}
 		} else {
-			$stmt .= " ORDER BY ".$orderby;
+			$orderby="book_title";
+		}
+		if(isset($_POST['id']) && !isset($_POST['back'])) {					// If ID set add WHERE clause to SQL
+			$stmt .= " WHERE b.book_id=".$_POST['id'];
+		} else {
+			$stmt .= " ORDER BY ".$orderby;														// ORDER BY for sorting selection
 		}
 		$results = mysqli_query($con, $stmt);
 		if(mysqli_errno($con)) {
 			die("Could not select books and authors.<br>Query: ".$stmt."<br>Error: ".mysqli_error($con));
 		}
-		if(isset($_REQUEST['id']) && !isset($_REQUEST['back'])) {
+		if(isset($_POST['id']) && !isset($_POST['back'])) {
 			echo "<div class=\"singlebook clearfix\">";
 			$row = mysqli_fetch_assoc($results);
 			echo "<img src=\"images/";
@@ -293,7 +305,7 @@ if(isset($_REQUEST['modify'])) {
 					<div class="modal-body">
 						<div class="form-group">
 							<label for="accuser">Username</label>
-							<input class="form-control" id="accuser" name="accuser" value="<?php echo getUsername($con,$_SESSION['clientid']); ?>" type="text" autofocus>
+							<input class="form-control" id="accuser" name="accuser" value="<?php echo getUsername($con,$_SESSION['clientid']); ?>" type="text" disabled>
 						</div>
 						<div class="form-group">
 							<label for="exampleInputPassword1">Old Password</label>

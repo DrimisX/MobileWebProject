@@ -102,16 +102,11 @@ if(isset($_POST['modify'])) {
 		<div id="navbarCollapse" class="collapse navbar-collapse">
 			<ul class="nav navbar-nav">
 				<li><a href="books.php"><span class="glyphicon glyphicon-book"></span> Books</a></li>
-				<li class="dropdown">
-					<a data-toggle="dropdown" class="dropdown-toggle" href="#"><span class="glyphicon glyphicon-list"></span> Sort By<b class="caret"></b></a>
 					<ul role="menu" class="dropdown-menu">
 						<li><a href="?sortby=title">Title</a></li>
 						<li><a href="?sortby=afirst">Author First Name</a></li>
 						<li><a href="?sortby=alast">Author Last Name</a></li>
-						<li class="divider"></li>
-						<li><a href="index.php#">See All</a></li>
 					</ul>
-				</li>
 			</ul>
 			<form role="search" class="navbar-form navbar-left">
 				<div class="form-group">

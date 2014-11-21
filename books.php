@@ -102,15 +102,21 @@ if(isset($_POST['modify'])) {
 		<div id="navbarCollapse" class="collapse navbar-collapse">
 			<ul class="nav navbar-nav">
 				<li><a href="books.php"><span class="glyphicon glyphicon-book"></span> Books</a></li>
+				<li class="dropdown">
+					<a data-toggle="dropdown" class="dropdown-toggle" href="#"><span class="glyphicon glyphicon-list"></span> Sort By<b class="caret"></b></a>
 					<ul role="menu" class="dropdown-menu">
 						<li><a href="?sortby=title">Title</a></li>
 						<li><a href="?sortby=afirst">Author First Name</a></li>
 						<li><a href="?sortby=alast">Author Last Name</a></li>
+						<li class="divider"></li>
+						<li><a href="index.php#">See All</a></li>
 					</ul>
+				</li>
 			</ul>
-			<form role="search" class="navbar-form navbar-left">
+			<form role="search" class="navbar-form navbar-left" method="post">
 				<div class="form-group">
-					<input type="text" placeholder="Search by Author/Title/Keyword" class="input-large form-control" >
+					<input type="text" placeholder="Search by Author/Title/Keyword" class="input-large form-control" name="searchbox">
+					<button class="btn " name="search" value="Search">
 				</div>
 			</form>
 			<ul class="nav navbar-nav navbar-right">
@@ -173,8 +179,8 @@ if(isset($_POST['modify'])) {
 		} else {
 			$orderby="book_title";
 		}
-		if(isset($_POST['id']) && !isset($_POST['back'])) {					// If ID set add WHERE clause to SQL
-			$stmt .= " WHERE b.book_id=".$_POST['id'];
+		if(isset($_REQUEST['id']) && !isset($_REQUEST['back'])) {					// If ID set add WHERE clause to SQL
+			$stmt .= " WHERE b.book_id=".$_REQUEST['id'];
 		} else {
 			$stmt .= " ORDER BY ".$orderby;														// ORDER BY for sorting selection
 		}
@@ -182,7 +188,7 @@ if(isset($_POST['modify'])) {
 		if(mysqli_errno($con)) {
 			die("Could not select books and authors.<br>Query: ".$stmt."<br>Error: ".mysqli_error($con));
 		}
-		if(isset($_POST['id']) && !isset($_POST['back'])) {
+		if(isset($_REQUEST['id']) && !isset($_REQUEST['back'])) {
 			echo "<div class=\"singlebook clearfix\">";
 			$row = mysqli_fetch_assoc($results);
 			echo "<img src=\"images/";

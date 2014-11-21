@@ -143,8 +143,8 @@ if(isset($_POST['modify'])) {
 					}
 					?>" class="input-large form-control" name="searchbox"
 					<?php
-					if(isset($_POST['searchbox'])) {
-						echo " value = \"".$_POST['searchbox']."\"";
+					if(isset($_REQUEST['searchbox'])) {
+						echo " value = \"".$_REQUEST['searchbox']."\"";
 					}
 					?>>
 					<button class="btn " name="search" value="Search">Go</button>
@@ -213,7 +213,7 @@ if(isset($_POST['modify'])) {
 		if(isset($_REQUEST['id']) && !isset($_REQUEST['back'])) {					// If ID set add WHERE clause to SQL
 			$stmt .= " WHERE b.book_id=".$_REQUEST['id'];
 		} else {
-			if(isset($_POST['search']) && isset($_POST['searchbox'])) {
+			if(isset($_REQUEST['searchbox'])) {
 				if(isset($_GET['sortby'])) {
 					switch ($_GET['sortby']) {
 						case "afirst":
@@ -228,12 +228,28 @@ if(isset($_POST['modify'])) {
 				} else {
 					$whereclause = "book_title";
 				}
-				$whereclause .= " LIKE '%".$_POST['searchbox']."%'";
+				$whereclause .= " LIKE '%".$_REQUEST['searchbox']."%'";
 				$stmt .= " WHERE ".$whereclause;
 			} else {
 				$stmt .= " ORDER BY ".$orderby;														// ORDER BY for sorting selection
 			}
 		}
+		if(isset($_GET['page'])) {
+			$page = $_GET['page'];
+		} else {
+			$page = 0;
+		}
+		if(isset($_POST['search'])) {
+			$page = 0;
+		}
+		$results = mysqli_query($con, $stmt);
+		if(mysqli_errno($con)) {
+			die("Could not select books and authors.<br>Query: ".$stmt."<br>Error: ".mysqli_error($con));
+		}
+		$numItems = mysqli_num_rows($results);
+		$numPages = (int) ($numItems / $itemsPerPage);
+		
+		$stmt .= " LIMIT ".($page*$itemsPerPage).",".$itemsPerPage;
 		$results = mysqli_query($con, $stmt);
 		if(mysqli_errno($con)) {
 			die("Could not select books and authors.<br>Query: ".$stmt."<br>Error: ".mysqli_error($con));
@@ -259,6 +275,19 @@ if(isset($_POST['modify'])) {
 		} else {
 			echo "<div class=\"booklist\">\n";
 			$counter=1;
+			if($numPages>1 && $itemsPerPage>5) {
+				if(isset($_REQUEST['sortby'])) {
+					$sortby = $_REQUEST['sortby'];
+				} else {
+					$sortby = NULL;
+				}
+				if(isset($_REQUEST['searchbox'])) {
+					$searchbox = $_REQUEST['searchbox'];
+				} else {
+					$searchbox = NULL;
+				}
+				ShowPaging($page,$numPages,$sortby,$searchbox);
+			}
 			while($row = mysqli_fetch_array($results)) {
 				echo "<a href=\"?id=".$row['book_id']."\">";
 				echo "<div class=\"book col-xs-12 col-sm-6 col-md-4 col-lg-3\">";
@@ -284,6 +313,22 @@ if(isset($_POST['modify'])) {
 				$counter++;
 			}
 			echo "</div></a>\n";
+			echo "<div class=\"clearfix\">&nbsp;</div>";
+			echo "<div class=\"bottompagination\">";
+			if($numPages>1) {
+				if(isset($_REQUEST['sortby'])) {
+					$sortby = $_REQUEST['sortby'];
+				} else {
+					$sortby = NULL;
+				}
+				if(isset($_REQUEST['searchbox'])) {
+					$searchbox = $_REQUEST['searchbox'];
+				} else {
+					$searchbox = NULL;
+				}
+				ShowPaging($page,$numPages,$sortby,$searchbox);
+			}
+			echo "<div>\n";
 		}
 	?>
 	<div>

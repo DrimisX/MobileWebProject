@@ -17,9 +17,17 @@ define("PASS","");
 
 // *********** PHP Settings Variable List
 $timelimit = 300;			// Amount of time in seconds that a client will stay logged in without doing something. (300 = 5 mins.)
-$itemsPerPage = 20;		// Number of items to display per page
+$itemsPerPage = 12;		// Number of items to display per page
 
 $con = mysqli_connect(constant('SERVERNAME'), constant('USR'), constant('PASS'), constant('DATABASENAME'));
 if($con->connect_error) {
-	die("Connection failed: " . $con->connect_error);
+	Display_Error("Connection failed: " . $con->connect_error);
 }
+
+$stmt = "SELECT count(book_id) FROM books";
+$results = mysqli_query($con, $stmt);
+if(!$results) {
+	Display_Error("Could not get count of books.");
+}
+$numRows = mysqli_fetch_array($results, MYSQLI_NUM);
+$totalNumPages = (int)($numRows[0] / $itemsPerPage);

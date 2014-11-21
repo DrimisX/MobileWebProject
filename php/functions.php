@@ -121,6 +121,38 @@ function changeUserInfo($con,$username,$password) {
 	return $flag;
 }
 
-// 
-// 				$stmt = "UPDATE accounts SET client_username=\"".$clientUsername."\",client_password=\"".$newHashed."\"";
-// 				$stmt = $stmt." WHERE client_id=".$_REQUEST['clientid'];
+function ShowPaging($page,$numPages,$sortby,$searchbox) {
+	echo "<div class=\"clearfix\">";
+	echo "<ul class=\"pagination\">\n";
+	echo "<li><a href=\"?page=0";
+	if($sortby != NULL) {
+		echo "&sortby=".$sortby;
+	}
+	if($searchbox != NULL) {
+		echo "&searchbox=".$searchbox;
+	}
+	echo "\">First</a></li>\n";
+	for($i = 0; $i <$numPages; $i++) {
+		echo "<li";
+		if($page == $i) {
+			echo " class=\"active\"";
+		}
+		echo "><a href=\"?page=".$i;
+		if($sortby != NULL) {
+			echo "&sortby=".$sortby;
+		}
+		if($searchbox != NULL) {
+			echo "&searchbox=".$searchbox;
+		}
+		echo "\">".($i+1)."</a></li>\n";
+	}
+	echo "<li><a href=\"?page=".($i-1);
+	if($sortby != NULL) {
+		echo "&sortby=".$sortby;
+	}
+	if($searchbox != NULL) {
+		echo "&searchbox=".$searchbox;
+	}
+	echo "\">Last</a></li>\n";
+	echo "</ul></div>\n";
+}

@@ -44,6 +44,8 @@ h2 img{
   transition: ease .75s;
 }
 .book img {
+	width: 120px;
+	height: 160px;
   transition: ease .75s;
 }
 .book:hover img {
@@ -85,4 +87,24 @@ h2 img{
 }
 .bookprice {
   text-align: left;
+}
+.pagination {
+	clear: both;
+}
+.pagination li a {
+	margin: 10px auto;
+	color: black;
+}
+.pagination .active a {
+	color: white;
+	background: black;
+	border-color: black;
+}
+.pagination .active a:hover {
+	color: white;
+	background: black;
+}
+.bottompagination {
+	width: 100%;
+	text-align: center;
 }

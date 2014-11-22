@@ -70,6 +70,26 @@ if(isset($_POST['modify'])) {
 		Display_Error("Could not modify user account.");
 	}
 }	
+
+// Add book to cart
+if(isset($_REQUEST['addcart'])) {
+// 	Display_Error("Add book ".$_REQUEST['addcart']." to cart.");
+	AddCart($_REQUEST['addcart']);
+}
+// Remove book from cart
+if(isset($_REQUEST['removecart'])) {
+// 	Display_Error("Remove book ".$_REQUEST['removecart']." to cart.");
+	RemoveCart($_REQUEST['removecart']);
+}
+// Empty cart
+if(isset($_REQUEST['emptycart'])) {
+// 	Display_Error("Empty Cart.");
+	EmptyCart();
+}
+// Checkout
+if(isset($_REQUEST['checkout'])) {
+	header("Location: checkout.php");
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -96,7 +116,7 @@ if(isset($_POST['modify'])) {
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a href="#" class="navbar-brand">ANC</a>
+			<a href="#" class="navbar-brand">A<br>&nbsp;Novel<br>&nbsp;&nbsp;Concept</a>
 		</div>
 		<!-- Collection of nav links, forms, and other content for toggling -->
 		<div id="navbarCollapse" class="collapse navbar-collapse">
@@ -162,15 +182,28 @@ if(isset($_POST['modify'])) {
 						<li><a href="contact.php">Contact Us</a></li>
 					</ul>
 				</li>
-				<li class="dropdown">
-					<a data-toggle="dropdown" class="dropdown-toggle" href="#"><span class="glyphicon glyphicon-shopping-cart"></span> Shopping Cart<b class="caret"></b></a>
-					<ul role="menu" class="dropdown-menu">
-						<li><a href="#cartModal" data-toggle="modal" data-target="#cartModal"><span class="glyphicon glyphicon-search"></span> View Items <span class="badge">0</span></a></li>
-						<li class="divider"></li>
-						<li><a href="checkout.php"><span class="glyphicon glyphicon-tag"></span> Checkout</a></li>
-					</ul>
-				</li>
 				<?php
+				if(isset($_SESSION['clientid'])) {
+					?>
+					<li class="dropdown">
+						<a data-toggle="dropdown" class="dropdown-toggle" href="#"><span class="glyphicon glyphicon-shopping-cart"></span> Shopping Cart<b class="caret"></b></a>
+						<ul role="menu" class="dropdown-menu">
+							<li><a href="#cartModal" data-toggle="modal" data-target="#cartModal"><span class="glyphicon glyphicon-search">
+								</span> View Items <span class="badge">
+								<?php
+								if(isset($_SESSION['cart'])) {
+									echo sizeof(unserialize($_SESSION['cart']));
+								} else {
+									echo "0";
+								}
+								?>
+								</span></a></li>
+							<li class="divider"></li>
+							<li><a href="checkout.php"><span class="glyphicon glyphicon-tag"></span> Checkout</a></li>
+						</ul>
+					</li>
+					<?php
+				}
 				if(isset($_SESSION['clientid'])) {					// If user is logged in display their name
 					?>
 					<li><a data-toggle="dropdown" class="dropdown-toggle" href="#"><span class="glyphicon glyphicon-user"></span>
@@ -246,6 +279,7 @@ if(isset($_POST['modify'])) {
 		if(mysqli_errno($con)) {
 			die("Could not select books and authors.<br>Query: ".$stmt."<br>Error: ".mysqli_error($con));
 		}
+		$resultsCopy = $results;
 		$numItems = mysqli_num_rows($results);
 		$numPages = (int) ($numItems / $itemsPerPage);
 		
@@ -254,25 +288,25 @@ if(isset($_POST['modify'])) {
 		if(mysqli_errno($con)) {
 			die("Could not select books and authors.<br>Query: ".$stmt."<br>Error: ".mysqli_error($con));
 		}
-		if(isset($_REQUEST['id']) && !isset($_REQUEST['back'])) {
-			echo "<div class=\"singlebook clearfix\">";
-			$row = mysqli_fetch_assoc($results);
-			echo "<img src=\"images/";
-			if(file_exists("images/".$row['book_id'].".jpg")) {
-				echo $row['book_id'];
-			} else {
-				echo "coverart";
-			}
-			echo ".jpg\">";
-			echo "<div class=\"booktitle\">".$row['book_title']."</div>";
-			echo "<div class=\"bookauthor\">".$row['author_first']." ".$row['author_middle']." ".$row['author_last']."</div>";
-			echo "<div class=\"bookplot\">".$row['book_plot']."</div>";
-			printf("<div class=\"bookprice\">$%.2f</div>",$row['book_price']);
-			echo "</div>";
-			echo "<form action=\"\" method=\"post\">";
-			echo "<button type=\"submit\" name=\"back\">Back</button>";
-			echo "</form>";
-		} else {
+// 		if(isset($_REQUEST['id']) && !isset($_REQUEST['back'])) {					// Single book view
+// 			echo "<div class=\"singlebook clearfix\">";
+// 			$row = mysqli_fetch_assoc($results);
+// 			echo "<img src=\"images/";
+// 			if(file_exists("images/".$row['book_id'].".jpg")) {
+// 				echo $row['book_id'];
+// 			} else {
+// 				echo "coverart";
+// 			}
+// 			echo ".jpg\">";
+// 			echo "<div class=\"booktitle\">".$row['book_title']."</div>";
+// 			echo "<div class=\"bookauthor\">".$row['author_first']." ".$row['author_middle']." ".$row['author_last']."</div>";
+// 			echo "<div class=\"bookplot\">".$row['book_plot']."</div>";
+// 			printf("<div class=\"bookprice\">$%.2f</div>",$row['book_price']);
+// 			echo "</div>";
+// 			echo "<form action=\"\" method=\"post\">";
+// 			echo "<button type=\"submit\" name=\"back\">Back</button>";
+// 			echo "</form>";
+// 		} else {																													// Multi-book view
 			echo "<div class=\"booklist\">\n";
 			$counter=1;
 			if($numPages>1 && $itemsPerPage>5) {
@@ -289,7 +323,7 @@ if(isset($_POST['modify'])) {
 				ShowPaging($page,$numPages,$sortby,$searchbox);
 			}
 			while($row = mysqli_fetch_array($results)) {
-				echo "<a href=\"?id=".$row['book_id']."\">";
+				echo "<a href=\"#book".$row['book_id']."Modal\" data-toggle=\"modal\" data-target=\"#book".$row['book_id']."Modal\">";
 				echo "<div class=\"book col-xs-12 col-sm-6 col-md-4 col-lg-3\">";
 				echo "<h2><img src=\"images/";
 				if(file_exists("images/".$row['book_id'].".jpg")) {
@@ -329,11 +363,49 @@ if(isset($_POST['modify'])) {
 				ShowPaging($page,$numPages,$sortby,$searchbox);
 			}
 			echo "<div>\n";
-		}
+// 		}
 	?>
 	<div>
 	
-		<!-- Modals -->
+	<!-- Modals -->
+	<?php
+	while($row = mysqli_fetch_array($resultsCopy)) {									// Single Book View Modals
+		?>
+		<div class="modal fade" id="book<?php echo $row['book_id']; ?>Modal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+						<h4 class="modal-title"><?php echo $row['book_title']; ?></h4>
+					</div>
+					<div class="modal-body singlebook clearfix">
+						<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+						<img class="col-xs-12 col-sm-6" src="images/<?php
+						if(file_exists("images/".$row['book_id'].".jpg")) {
+							echo $row['book_id'];
+						} else {
+							echo "coverart";
+						}
+						?>.jpg"><?php
+						echo "<div class=\"booktitle\">".$row['book_title']."</div>";
+						echo "<div class=\"bookauthor\">".$row['author_first']." ".$row['author_middle']." ".$row['author_last']."</div>";
+						echo "<div class=\"bookplot\">".$row['book_plot']."</div>";
+						printf("<div class=\"bookprice\">$%.2f</div>",$row['book_price']);
+						echo "</div>";
+						echo "<div class=\"modal-footer\">";
+						echo "<button class=\"btn btn-success\" name=\"addcart\" value=\"".$row['book_id']."\">Add to Cart</button>";
+						echo "<a href=\"#\" data-dismiss=\"modal\" class=\"btn\">Close</a>";
+						echo "</div>";
+						?>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+	?>
+	
 	<div class="modal fade" id="loginModal">								<!-- Login Modal -->
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -422,21 +494,26 @@ if(isset($_POST['modify'])) {
 		</div>
 	</div>
 
-	<div class="modal fade" id="cartModal">
+	<div class="modal fade" id="cartModal">							<!-- Cart Model -->
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
 					<h4 class="modal-title">Shopping Cart</h4>
 				</div>
-				<div class="modal-body">
-					<p>CART ITEMS HERE</p>
-				</div>
-				<div class="modal-footer">
-					<a href="#" data-dismiss="modal" class="btn">Close</a>
-					<a href="checkout.php" class="btn btn-primary">Proceed to Checkout</a>
-				</div>
-		    </div>
+				<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+					<div class="modal-body">
+						<?php
+						ShowCart($con);
+						?>
+					</div>
+					<div class="modal-footer">
+							<a href="#" data-dismiss="modal" class="btn">Close</a>
+							<button class="btn <?php echo isset($_SESSION['cart'])?"btn-primary":"btn-disabled"; ?>" type="submit" name="checkout">Proceed to Checkout</a>
+							<button class="btn <?php echo isset($_SESSION['cart'])?"btn-danger":"btn-disabled"; ?>" type="submit" name="emptycart">Empty Cart</button>
+					</div>
+				</form>
+			</div>
 		</div>
 	</div>
 	

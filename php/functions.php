@@ -156,3 +156,86 @@ function ShowPaging($page,$numPages,$sortby,$searchbox) {
 	echo "\">Last</a></li>\n";
 	echo "</ul></div>\n";
 }
+
+function GetBookInfo($con,$bookid) {
+	$stmt = "SELECT book_title,author_first,author_last,book_price FROM books b";
+	$stmt .= " JOIN book_authors ba ON b.book_id=ba.book_id";
+	$stmt .= " JOIN authors a ON ba.author_id=a.author_id";
+	$stmt .= " WHERE b.book_id = '".$bookid."'";
+	$results = mysqli_query($con, $stmt);
+	if(!$results) {
+		Display_Error("Could not get book info for bookid ".$bookid);
+	}
+	$result = mysqli_fetch_assoc($results);
+	return $result;
+}
+
+function ShowCart($con) {
+	if(isset($_SESSION['cart'])) {
+		$cart = unserialize($_SESSION['cart']);
+		echo "<table class=\"table\">\n";
+		echo "<thead>\n";
+		echo "<tr>";
+		echo "<th>Book ID</th>";
+		echo "<th>Title</th>";
+		echo "<th>Author</th>";
+		echo "<th>Price</th>";
+		echo "<th>X</th>";
+		echo "</tr>\n";
+		echo "</thead>\n";
+		echo "<tbody>\n";
+		for($i=0 ; $i<sizeof($cart) ; $i++) {
+			$bookinfo = GetBookInfo($con,$cart[$i]);
+			echo "<tr>";
+			echo "<td>".$cart[$i]."</td>";
+			echo "<td>".$bookinfo['book_title']."</td>";
+			echo "<td>".$bookinfo['author_first']." ".$bookinfo['author_last']."</td>";
+			printf("<td>$%3.2f</td>",$bookinfo['book_price']);
+			echo "<td><button class=\"btn btn-danger\" type=\"submit\" name=\"removecart\" value=\"".$cart[$i]."\">x</button><td>";
+			echo "</tr>\n";
+		}
+		echo "</tbody>\n";
+		echo "</table>\n";
+	} else {
+		echo "<div class=\"alert alert-danger\">Shopping cart is empty. Add books to continue.</div>\n";
+	}
+}
+
+function AddCart($bookid) {
+	if(isset($_SESSION['cart'])) {
+		$cart = unserialize($_SESSION['cart']);
+		$cart[sizeof($cart)] = $bookid;
+	} else {
+		$cart = array();
+		$cart[0] = $bookid;
+	}
+	$_SESSION['cart'] = serialize($cart);
+}
+
+function RemoveCart($bookid) {
+	if(isset($_SESSION['cart'])) {
+		$cart = unserialize($_SESSION['cart']);
+		$counter = 0;
+		for($i=0 ; $i<sizeof($cart) ; $i++) {
+			if($cart[$i] != $bookid) {
+				$newcart[$counter] = $cart[$i];
+				$counter++;
+			}
+		}
+		if(sizeof($newcart)==0) {
+			unset($_SESSION['cart']);
+			header("Location: ".$_SERVER['PHP_SELF']);
+		} else {
+			$_SESSION['cart'] = serialize($newcart);
+		}
+	} else {
+		unset($_SESSION['cart']);
+		header("Location: ".$_SERVER['PHP_SELF']);
+	}
+}
+
+function EmptyCart() {
+	unset($_SESSION['cart']);
+	header("Location: ".$_SERVER['PHP_SELF']);
+}
+

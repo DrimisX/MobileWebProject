@@ -30,7 +30,12 @@ h2 img{
 }
 .navbar-inverse .navbar-brand {
 	background: url("../images/mobileBrand.jpg");
-	color: white;
+	width: 60px;
+	color: rgba(255,255,255,0.9);
+	font-size: 12px;
+	line-height: 130%;
+	margin: 0;
+	padding: 5px 5px 0;
 }
 /* Added by Jeff Codling */
 .booklist {
@@ -58,17 +63,11 @@ h2 img{
   transition: ease .75s;
 }
 .singlebook {
-	margin-top: 80px;
 	text-align: center;
   font-size: 16px;
-  background: rgba(255,255,255,0.8);
-  border-top: 1px solid black;
-  border-bottom: 1px solid black;
 }
 .singlebook img {
-  float: left;
-  margin: 15px;
-  border: 1px solid black;
+  padding: 15px;
 }
 .booktitle {
   margin: 15px 0 0;

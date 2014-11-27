@@ -64,16 +64,20 @@ h2 img{
 }
 .singlebook {
 	text-align: center;
-  font-size: 16px;
+	font-size: 16px;
 }
 .singlebook img {
-  padding: 15px;
+	padding: 15px;
 }
 .booktitle {
   margin: 15px 0 0;
   text-align: left;
   font-weight: bold;
   font-size: 24px;
+}
+.bookimage {
+	width: 90%;
+	margin: 10px auto;
 }
 .bookauthor {
   margin: 5px 0;
@@ -94,6 +98,11 @@ h2 img{
 	margin: 10px auto;
 	color: black;
 }
+.pagination li a:hover {
+	background: #666;
+	color: white;
+	transition: ease .25s;
+}
 .pagination .active a {
 	color: white;
 	background: black;
@@ -106,4 +115,23 @@ h2 img{
 .bottompagination {
 	width: 100%;
 	text-align: center;
+}
+.right {
+	text-align: right;
+}
+.centre {
+	text-align: center;
+}
+.checkout {
+	margin: 90px 0px 0px;
+	padding: 10px;
+	background: rgba(255,255,255,0.9);
+	border-radius: 15px;
+	border: 1px solid rgba(0,0,0,.7);
+	box-shadow: 2px 2px 4px black;
+}
+.scrollable {
+	height: 60vh;
+	overflow-y: scroll;
+	overflow-x: none;
 }

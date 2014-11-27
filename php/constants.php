@@ -18,6 +18,7 @@ define("PASS","");
 // *********** PHP Settings Variable List
 $timelimit = 300;			// Amount of time in seconds that a client will stay logged in without doing something. (300 = 5 mins.)
 $itemsPerPage = 12;		// Number of items to display per page
+$rootpage = "books.php";		// Root of application
 
 $con = mysqli_connect(constant('SERVERNAME'), constant('USR'), constant('PASS'), constant('DATABASENAME'));
 if($con->connect_error) {

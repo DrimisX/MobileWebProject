@@ -170,17 +170,20 @@ function GetBookInfo($con,$bookid) {
 	return $result;
 }
 
-function ShowCart($con) {
+function ShowCart($con,$cart) {
 	if(isset($_SESSION['cart'])) {
 		$cart = unserialize($_SESSION['cart']);
-		echo "<table class=\"table\">\n";
+		$totalprice = 0;
+		echo "<table class=\"table table-hover\">\n";
 		echo "<thead>\n";
 		echo "<tr>";
 		echo "<th>Book ID</th>";
 		echo "<th>Title</th>";
 		echo "<th>Author</th>";
-		echo "<th>Price</th>";
-		echo "<th>X</th>";
+		echo "<th class=\"right\">Price</th>";
+		if(!$cart) {
+			echo "<th>&nbsp;</th>";
+		}
 		echo "</tr>\n";
 		echo "</thead>\n";
 		echo "<tbody>\n";
@@ -190,10 +193,20 @@ function ShowCart($con) {
 			echo "<td>".$cart[$i]."</td>";
 			echo "<td>".$bookinfo['book_title']."</td>";
 			echo "<td>".$bookinfo['author_first']." ".$bookinfo['author_last']."</td>";
-			printf("<td>$%3.2f</td>",$bookinfo['book_price']);
-			echo "<td><button class=\"btn btn-danger\" type=\"submit\" name=\"removecart\" value=\"".$cart[$i]."\">x</button><td>";
+			printf("<td class=\"right\">$%4.2f</td>",$bookinfo['book_price']);
+			if(!$cart) {
+				echo "<td><button class=\"btn btn-danger btn-xs\" type=\"submit\" name=\"removecart\" value=\"".$cart[$i]."\">remove</button><td>";
+			}
 			echo "</tr>\n";
+			$totalprice += $bookinfo['book_price'];
 		}
+		echo "<tr><td></td><td></td><td class=\"right\">Total:</td><td class=\"right\">";
+		printf("$%4.2f",$totalprice);
+		echo "</td>";
+		if(!$cart) {
+			echo "<td></td>";
+		}
+		echo "</tr>\n";
 		echo "</tbody>\n";
 		echo "</table>\n";
 	} else {

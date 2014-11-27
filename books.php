@@ -121,25 +121,25 @@ if(isset($_REQUEST['checkout'])) {
 		<!-- Collection of nav links, forms, and other content for toggling -->
 		<div id="navbarCollapse" class="collapse navbar-collapse">
 			<ul class="nav navbar-nav">
-				<li><a href="books.php"><span class="glyphicon glyphicon-book"></span> Books</a></li>
+				<li><a href="#"><span class="glyphicon glyphicon-book"></span> Books</a></li>
 				<li class="dropdown">
 					<a data-toggle="dropdown" class="dropdown-toggle" href="#"><span class="glyphicon glyphicon-list"></span><?php
 					if(isset($_GET['sortby'])) {
 						switch ($_GET['sortby']) {
 							case "afirst":
-								echo "By:Author's First Name";
+								echo " By:Author's First Name";
 								break;
 							case "alast":
-								echo "By:Author's Last Name";
+								echo " By:Author's Last Name";
 								break;
 							case "title":
-								echo "By:Title";
+								echo " By:Title";
 								break;
 							default:
-								echo "Sort By";
+								echo " Sort By";
 						}
 					} else {
-						echo "Sort By";
+						echo " Sort By";
 					}
 					?><b class="caret"></b></a>
 					<ul role="menu" class="dropdown-menu">
@@ -171,6 +171,10 @@ if(isset($_REQUEST['checkout'])) {
 				</div>
 			</form>
 			<ul class="nav navbar-nav navbar-right">
+				<li>
+					<a href="#infoModal" data-toggle="modal" data-target="#infoModal"><span class="glyphicon glyphicon-info-sign"></span> Info</a>
+				</li>
+<!-- 
 				<li class="dropdown">
 					<a data-toggle="dropdown" class="dropdown-toggle" href="#"><span class="glyphicon glyphicon-info-sign"></span> Info<b class="caret"></b></a>
 					<ul role="menu" class="dropdown-menu">
@@ -182,6 +186,7 @@ if(isset($_REQUEST['checkout'])) {
 						<li><a href="contact.php">Contact Us</a></li>
 					</ul>
 				</li>
+ -->
 				<?php
 				if(isset($_SESSION['clientid'])) {
 					?>
@@ -209,7 +214,7 @@ if(isset($_REQUEST['checkout'])) {
 					<li><a data-toggle="dropdown" class="dropdown-toggle" href="#"><span class="glyphicon glyphicon-user"></span>
 					<?php echo $_SESSION['clientname']; ?> Account<b class="caret"></b></a>
 					<ul role="menu" class="dropdown-menu">
-						<li><a href="wishList.html"><span class="glyphicon glyphicon-star-empty"></span> Wish List <span class="badge">0</span></a></li>
+<!-- 						<li><a href="wishList.html"><span class="glyphicon glyphicon-star-empty"></span> Wish List <span class="badge">0</span></a></li> -->
 						<li><a href="#accountModal" data-toggle="modal" data-target="#accountModal"><span class="glyphicon glyphicon-cog"></span> My Account</a></li>
 						<li class="divider"></li>
 						<li><a href="?logout=TRUE"><span class="glyphicon glyphicon-off"></span> Sign Out</a></li>
@@ -288,25 +293,6 @@ if(isset($_REQUEST['checkout'])) {
 		if(mysqli_errno($con)) {
 			die("Could not select books and authors.<br>Query: ".$stmt."<br>Error: ".mysqli_error($con));
 		}
-// 		if(isset($_REQUEST['id']) && !isset($_REQUEST['back'])) {					// Single book view
-// 			echo "<div class=\"singlebook clearfix\">";
-// 			$row = mysqli_fetch_assoc($results);
-// 			echo "<img src=\"images/";
-// 			if(file_exists("images/".$row['book_id'].".jpg")) {
-// 				echo $row['book_id'];
-// 			} else {
-// 				echo "coverart";
-// 			}
-// 			echo ".jpg\">";
-// 			echo "<div class=\"booktitle\">".$row['book_title']."</div>";
-// 			echo "<div class=\"bookauthor\">".$row['author_first']." ".$row['author_middle']." ".$row['author_last']."</div>";
-// 			echo "<div class=\"bookplot\">".$row['book_plot']."</div>";
-// 			printf("<div class=\"bookprice\">$%.2f</div>",$row['book_price']);
-// 			echo "</div>";
-// 			echo "<form action=\"\" method=\"post\">";
-// 			echo "<button type=\"submit\" name=\"back\">Back</button>";
-// 			echo "</form>";
-// 		} else {																													// Multi-book view
 			echo "<div class=\"booklist\">\n";
 			$counter=1;
 			if($numPages>1 && $itemsPerPage>5) {
@@ -380,23 +366,35 @@ if(isset($_REQUEST['checkout'])) {
 					</div>
 					<div class="modal-body singlebook clearfix">
 						<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
-						<img class="col-xs-12 col-sm-6" src="images/<?php
-						if(file_exists("images/".$row['book_id'].".jpg")) {
-							echo $row['book_id'];
-						} else {
-							echo "coverart";
-						}
-						?>.jpg"><?php
-						echo "<div class=\"booktitle\">".$row['book_title']."</div>";
-						echo "<div class=\"bookauthor\">".$row['author_first']." ".$row['author_middle']." ".$row['author_last']."</div>";
-						echo "<div class=\"bookplot\">".$row['book_plot']."</div>";
-						printf("<div class=\"bookprice\">$%.2f</div>",$row['book_price']);
-						echo "</div>";
-						echo "<div class=\"modal-footer\">";
-						echo "<button class=\"btn btn-success\" name=\"addcart\" value=\"".$row['book_id']."\">Add to Cart</button>";
-						echo "<a href=\"#\" data-dismiss=\"modal\" class=\"btn\">Close</a>";
-						echo "</div>";
-						?>
+							<div class="col-xs-12 col-sm-6">
+								<img class="bookimage" src="images/<?php
+								if(file_exists("images/".$row['book_id'].".jpg")) {
+									echo $row['book_id'];
+								} else {
+									echo "coverart";
+								}
+								?>.jpg">
+							</div>
+							<div class="col-xs-12 col-sm-6">
+								<?php
+								echo "<div class=\"booktitle\">".$row['book_title']."</div>";
+								echo "<div class=\"bookauthor\">".$row['author_first']." ".$row['author_middle']." ".$row['author_last']."</div>";
+								echo "<div class=\"bookplot\">".$row['book_plot']."</div>";
+								echo "<br>";
+								printf("<div class=\"bookprice\">$%.2f</div>",$row['book_price']);
+								echo "</div>";
+							echo "</div>";
+							echo "<div class=\"modal-footer\">";
+							echo "<button class=\"btn btn-sm";
+								if(isset($_SESSION['clientid'])) {
+									echo " btn-success";
+								} else {
+									echo " disabled";
+								}
+							echo "\" name=\"addcart\" value=\"".$row['book_id']."\">Add to Cart</button>";
+							echo "<a href=\"#\" data-dismiss=\"modal\" class=\"btn\">Close</a>";
+							echo "</div>";
+							?>
 						</form>
 					</div>
 				</div>
@@ -406,6 +404,153 @@ if(isset($_REQUEST['checkout'])) {
 	}
 	?>
 	
+	<div class="modal fade" id="infoModal">							<!-- Info Model -->
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+					<h4 class="modal-title">Company Information</h4>
+				</div>
+				<div class="modal-body">
+					<div role="tabpanel">
+
+						<!-- Nav tabs -->
+						<ul class="nav nav-tabs" role="tablist">
+							<li role="presentation" class="active"><a href="#aboutus" aria-controls="aboutus" role="tab" data-toggle="tab">About Us</a></li>
+							<li role="presentation"><a href="#policy" aria-controls="policy" role="tab" data-toggle="tab">Privacy Policy</a></li>
+							<li role="presentation"><a href="#terms" aria-controls="terms" role="tab" data-toggle="tab">Terms of Use</a></li>
+							<li role="presentation"><a href="#contact" aria-controls="contact" role="tab" data-toggle="tab">Contact</a></li>
+						</ul>
+
+						<!-- Tab panes -->
+						<div class="tab-content  scrollable">
+							<div role="tabpanel" class="tab-pane active" id="aboutus">
+								<div class="row">
+									<div class="col-md-6">
+										<h4>About Us</h4>
+										<p><strong>A Novel Concept</strong> is a bookstore that was made as a web project for class in
+											2nd year CPRO at Lambton College, Sarnia, Ontario, Canada.<p>
+										<p>We sell books of all sorts, new and used.</p>
+									</div>
+									<div class="col-md-6">
+										<h4>Delivery Address</h4>
+										<address>
+											<strong>A Novel Concept</strong><br>
+											123 Fake Street<br>
+											Clock Town, N0V 3L0<br>
+											<abbr title="Phone">P:</abbr> 1-888-NOVE (6683)
+										</address>
+									</div>
+								</div>
+								<div class=".col-md-6 .col-md-offset-3">
+									<p class="centre"><strong>This site is a proof of concept and not a real store.</strong></p>
+								</div>
+							</div>
+							<div role="tabpanel" class="tab-pane" id="policy">
+								<div class="row">
+									<div class="col-xs-12">
+										<h4>Privacy Policy</h4>
+										<p><strong>A Novel Concept</strong>(also we, us and our) respects your privacy rights, as an online visitor, and recognizes the importance of protecting the information collected about you.
+A Novel Concept collects personal information by ordering. 
+											When you order you are consenting to the collection of your personal data. If your order is placed with us, we need to hold personal information including your name, email address, phone numbers, home address, shipping and credit/debit card billing address(es) so that we can process and fulfill your order.
+
+											Saved card details will never be shared with third parties and will only be used to process your order, using our payment partnerís systems. Additionally we may also obtain information as a result of authentication or identity checks. Sometimes we may ask for your telephone number. 
+											This number may be given to our courier for delivery services. These details allow us to process your order and to let you know the status of your order.
+										</p>
+									</div>
+								</div>
+							</div>
+							<div role="tabpanel" class="tab-pane" id="terms">
+								<div class="row">
+									<div class="col-xs-12">
+										<h4>Terms and Conditions</h4>
+										<p>These terms and conditions apply to all orders placed with <strong>A Novel Concept</strong>.
+											The company will be referred to in these conditions as <strong>A Novel Concept</strong>, this website or we.
+										</p>
+										<p>PLEASE READ THESE TERMS AND CONDITIONS CAREFULLY BEFORE USING THIS WEBSITE. 
+											YOUR USE OF THIS WEBSITE CONFIRMS YOUR ACCEPTANCE OF THE FOLLOWING TERMS AND CONDITIONS. 
+											<strong>A Novel Concept</strong> MAY REVISE THESE TERMS AND CONDITIONS AT ANY TIME AND FORM TIME TO TIME BY UPDATING THIS POSTING.
+										</p>
+										<h4>Product Information</h4>
+										<p>We attempt to ensure that information on this website is complete, accurate and current.</p>
+										<p>Despite our efforts, the product information on this website may occasionally be inaccurate, incomplete
+											or out of date. We make no representation as to the completeness, accuracy or currentness of any product
+											information on this website.</p>
+										<h4>Prices</h4>
+										<p>Unless otherwise stated, the prices stated on this website include VAT but exclude delivery costs, which will be added to the total amount due. Prices are liable to change at any time. 
+										The price at the time of making an order is valid throughout that buying process.</p>
+										<h4>Payment</h4>
+										<p>Orders will only be shipped after <strong>A Novel Concept</strong> has received complete payment for the product purchased. Payment will only be accepted by using the payment options outlined on this website.</p>
+										<p>All credit/debit card holders are subject to validation checks and authorization by the card issuer. If the issuer of your payment card refuses to authorize payment, we will not be liable for any delay or non-delivery of your order. In the event that your card authorization and validation is declined, we reserve the right to cancel your order.</p>
+										<p>When <strong>A Novel Concept</strong> receives no payment within 14 days after order date, the order will be canceled.</p>
+										<h4>Delivery</h4>
+										<p>The products offered by <strong>A Novel Concept</strong> on this website are available for countries within the European Union and for some countries outside of the EU. Customers who want to order outside of the listed countries on this site must send their order to <strong>A Novel Concept</strong> directly using: service@realfakestudios.com. After the customer gives their ok on shipping costs <strong>A Novel Concept</strong> will proceed with the order made.<p>
+										<p>Ordered items will be made ready for dispatch by <strong>A Novel Concept</strong>, within 3 working days after the received order and will be shipped directly to the address you have stated as your delivery address by Post NL within the order time stated in the overview of our customer service. The delivery periods as stated on the website are indicative only. </p>
+										<p><strong>A Novel Concept</strong> is not responsible for any delay in delivery due to postal delays, strikes or forces otherwise beyond our control.</p>
+										<p>If you are not available at the address you have stated on your order form when our logistical partner delivers, they will leave a note
+											indicating options to arrange new delivery time, or indicate the address of the nearest neighbour or post office the parcel has been delivered to.</p>
+										<p><strong>Note:</strong> if the attempts by our logistical partner to deliver to the stated address is unsuccessful, the package will
+											be shipped back to <strong>A Novel Concept</strong>. <strong>A Novel Concept</strong> is not liable to refund the freight cost and any extra costs made in the return process.</p>
+										<p><strong>Note:</strong> International orders are subject to the custom fees charged by the destinationís government.
+											<strong>A Novel Concept</strong> has no control or responsibility over any charges that may be applied by the destination country,
+											like customs and import duties or sales tax.<p>
+										<h4>Returns and Exchanges</h4>
+										<p>If you donít like the item that you ordered, for any reason what so ever, we will refund your money with 100% (excluding delivery charges).</p>
+										<p>Please send an email to: service@aNovelConcept.com and let us know your:</p>
+										<dl>
+											<dt>Return</dt>
+											<dd>Order number</dd>
+											<dd>Customer name</dd>
+											<dd>Reason of return</dd>
+										</dl>
+										<h4>Defects</h4>
+										<p>You are required to fully inspect the delivered items within 14 working days after delivery.</p>
+										<p>In case of any alleged incompleteness or defect you must give written notice to <strong>A Novel Convept</strong> by sending an e-mail to
+											service@NovelConcept.com within this period of 14 working days, after which no claims for deficiency or incompleteness will be accepted.</p>
+										<p><strong>A Novel Convept</strong> cannot be held responsible for defects or damage caused by third parties, including logistical partners. Issues concerning
+											third parties will be handled on a case-by-case basis.</p>
+										<h4>Legal</h4>
+										<p>These terms and conditions are governed by the laws of the Nowherelands and all claims and disputes between <strong>A Novel Convept</strong> and
+											the purchaser will exclusively be brought before and settled by the competent court in Canada. <strong>A Novel Convept</strong> reserves the right
+											to bring a claim before any other court.</p>
+									</div>
+								</div>
+							</div>
+							<div role="tabpanel" class="tab-pane" id="contact">
+								<div class="row">
+									<div class="col-md-12">
+										<h4>Contact Information</h4>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-6">
+										<address><strong>E-mail</strong><br>
+											novel@NovelConcept.com<br><br>
+											<strong>Customer service</strong><br>
+											novelService@novelConcept.com<br><br>
+											<strong>Phone:</strong> 1-888-NOVE (6683)<br>
+											(available from 9AM to 6PM on working days)
+										</address>
+									</div>
+									<div class="col-md-6">
+										<address>
+											<strong>A Novel Concept</strong><br>
+											123 Fake Street<br>
+											Clock Town, N0V 3L0<br>
+										</address>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<a href="<?php echo $_SERVER['PHP_SELF']; ?>" data-dismiss="modal" class="btn">Close</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<div class="modal fade" id="loginModal">								<!-- Login Modal -->
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -417,7 +562,7 @@ if(isset($_REQUEST['checkout'])) {
 					<div class="modal-body">
 						<div class="form-group">
 							<label for="exampleInputEmail1">Username</label>
-							<input class="form-control" id="exampleInputEmail1" name="username" placeholder="Username" type="text">
+							<input class="form-control" id="exampleInputEmail1" name="username" placeholder="Username" type="text" autofocus="true">
 						</div>
 						<div class="form-group">
 							<label for="exampleInputPassword1">Password</label>
@@ -504,7 +649,7 @@ if(isset($_REQUEST['checkout'])) {
 				<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 					<div class="modal-body">
 						<?php
-						ShowCart($con);
+						ShowCart($con,false);
 						?>
 					</div>
 					<div class="modal-footer">
@@ -516,7 +661,7 @@ if(isset($_REQUEST['checkout'])) {
 			</div>
 		</div>
 	</div>
-	
+
 	<?php
 	include_once("php/endofpage.php");
 	?>

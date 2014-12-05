@@ -3,6 +3,16 @@ session_start();
 include_once("php/constants.php");
 include_once("php/functions.php");
 
+// Web Project for 2nd year CPRO at Lambton College
+// 
+// A Novel Concept
+//
+// Created by:				Team 1
+// Jeff Codling				HTML5, CSS3, PHP, MySQL Implementation
+// Dylan Huculak			HTML5, CSS3, Sample Data
+// Jason Preston			Database Design, Documentation, Sample Data
+//
+
 // Login Timeout
 if(isset($_SESSION['timestamp'])) {
 	if(time()>$timelimit+$_SESSION['timestamp']) {

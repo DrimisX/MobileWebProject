@@ -3,6 +3,16 @@ session_start();
 include_once("php/constants.php");
 include_once("php/functions.php");
 
+// Web Project for 2nd year CPRO at Lambton College
+// 
+// A Novel Concept
+//
+// Created by:				Team 1
+// Jeff Codling				HTML5, CSS3, PHP, MySQL Implementation
+// Dylan Huculak			HTML5, CSS3, Sample Data
+// Jason Preston			Database Design, Documentation, Sample Data
+//
+
 if(isset($_REQUEST['back'])) {
 	header("Location: ".$rootpage);
 }
@@ -35,7 +45,7 @@ if(isset($_REQUEST['emptycart'])) {
 			</div>
 			<ul class="nav">
 				<li class="navbar-text navbar-right">
-					<span class="glyphicon glyphicon-user"><span><?php
+					<span class="glyphicon glyphicon-user"><span> <?php
 					if(isset($_SESSION['clientid'])) {
 						echo getUsername($con,$_SESSION['clientid']);
 					} else {

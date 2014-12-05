@@ -1,4 +1,13 @@
 <?php
+// Web Project for 2nd year CPRO at Lambton College
+// 
+// A Novel Concept
+//
+// Created by:				Team 1
+// Jeff Codling				HTML5, CSS3, PHP, MySQL Implementation
+// Dylan Huculak			HTML5, CSS3, Sample Data
+// Jason Preston			Database Design, Documentation, Sample Data
+//
 // 
 // PHP Functions for Web Project
 // 

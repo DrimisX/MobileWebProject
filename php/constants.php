@@ -1,15 +1,39 @@
 <?php
+
+// Web Project for 2nd year CPRO at Lambton College
+// 
+// A Novel Concept
+//
+// Created by:				Team 1
+// Jeff Codling				HTML5, CSS3, PHP, MySQL Implementation
+// Dylan Huculak			HTML5, CSS3, Sample Data
+// Jason Preston			Database Design, Documentation, Sample Data
+//
+
 // *********** PHP Server Credentials
+// Dylan's Hosting
+//
 // define("SERVERNAME","gator3119.hostgator.com");
 // define("DATABASENAME","rbp_team01");
 // define("USR","rbp_team01");
 // define("PASS","Pass4team01!");
 
-define("SERVERNAME","localhost");
-define("DATABASENAME","web_project");
-define("USR","root");
-define("PASS","");
+// Localhost - Local testing
+//
+// define("SERVERNAME","localhost");
+// define("DATABASENAME","web_project");
+// define("USR","root");
+// define("PASS","");
 
+// Jeff's 1&1 Hosting - Rock Solid (use with Jeff's 1&1 hosting)
+//
+define("SERVERNAME","db554781221.db.1and1.com");
+define("DATABASENAME","db554781221");
+define("USR","dbo554781221");
+define("PASS","team01project!");
+
+// Jeff's GoDaddy Hosting - Unreliable
+//
 // define("SERVERNAME","team01project.db.6194647.hostedresource.com");
 // define("DATABASENAME","team01project");
 // define("USR","team01project");
